@@ -1,144 +1,59 @@
 from django.test import TestCase
-from django.urls import reverse
-from .models import Album, Media
-from .forms import AlbumForm, MediaForm
 from django.contrib.auth.models import User
+from rest_framework.test import APIClient
+from rest_framework import status
+from .models import Album, Media
 
-class AlbumModelTestCase(TestCase):
+class MediaManagementTests(TestCase):
     def setUp(self):
         # Create a test user
         self.user = User.objects.create_user(username='testuser', password='testpassword')
 
-        # Create a test album
-        self.album = Album.objects.create(
-            title='Test Album',
-            description='This is a test album.',
-            created_by=self.user  # Link the album to the test user
-        )
+        # Create some test albums
+        self.album1 = Album.objects.create(title='Album 1', description='Description 1', created_by=self.user)
+        self.album2 = Album.objects.create(title='Album 2', description='Description 2', created_by=self.user)
 
-    def test_album_creation(self):
-        """
-        Test that an album is created correctly.
-        """
-        self.assertEqual(self.album.title, 'Test Album')
-        self.assertEqual(self.album.description, 'This is a test album.')
-        self.assertEqual(self.album.created_by, self.user)
-
-class MediaModelTestCase(TestCase):
-    def setUp(self):
-        # Create a test user (if you're using user authentication)
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-
-        # Create a test album
-        self.album = Album.objects.create(
-            title='Test Album',
-            description='This is a test album.',
-            created_by=self.user
-        )
-
-        # Create a test media file
+        # Create a test media item
         self.media = Media.objects.create(
-            title='Test Media',
-            description='This is a test media file.',
-            album=self.album,  # Associate the media with the test album
-            uploader=self.user  # Link the uploader to the test user
+            title='Media Item',
+            description='Media Description',
+            album=self.album1,
+            uploader=self.user,
+            privacy_setting='public'
         )
 
-    def test_media_creation(self):
-        """
-        Test that a media file is created correctly.
-        """
-        self.assertEqual(self.media.title, 'Test Media')
-        self.assertEqual(self.media.description, 'This is a test media file.')
-        self.assertEqual(self.media.album, self.album)
-        self.assertEqual(self.media.uploader, self.user)
+        # Create an API client for making requests
+        self.client = APIClient()
 
-class AlbumListViewTestCase(TestCase):
-    def test_album_list_view(self):
-        """
-        Test the album list view.
-        """
-        response = self.client.get(reverse('media_management_app:album_list'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'media_management_app/album_list.html')
+    def test_create_album(self):
+        # Test creating a new album
+        self.client.force_authenticate(user=self.user)  # Authenticate the user
+        album_count = Album.objects.count()
+        new_album_data = {'title': 'New Album', 'description': 'New Description'}
+        response = self.client.post('/api/albums/', new_album_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Album.objects.count(), album_count + 1)
 
-class AlbumDetailViewTestCase(TestCase):
-    def setUp(self):
-        # Create a test user (if you're using user authentication)
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+    def test_create_media(self):
+        # Test creating a new media item
+        self.client.force_authenticate(user=self.user)  # Authenticate the user
+        media_count = Media.objects.count()
+        new_media_data = {
+            'title': 'New Media',
+            'description': 'New Media Description',
+            'album': self.album2.id,
+            'privacy_setting': 'public'
+        }
+        response = self.client.post('/api/media/', new_media_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Media.objects.count(), media_count + 1)
 
-        # Create a test album
-        self.album = Album.objects.create(
-            title='Test Album',
-            description='This is a test album.',
-            created_by=self.user
-        )
+    def test_list_albums(self):
+        # Test listing albums
+        response = self.client.get('/api/albums/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_album_detail_view(self):
-        """
-        Test the album detail view.
-        """
-        response = self.client.get(reverse('media_management_app:album_detail', args=[self.album.id]))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'media_management_app/album_detail.html')
-
-class CreateAlbumViewTestCase(TestCase):
-    def test_create_album_view(self):
-        """
-        Test the create album view.
-        """
-        response = self.client.get(reverse('media_management_app:create_album'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'media_management_app/create_album.html')
-
-    def test_create_album_form_valid(self):
-        """
-        Test that a valid album creation form is processed correctly.
-        """
-        data = {'title': 'New Album', 'description': 'This is a new album.'}
-        form = AlbumForm(data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_create_album_form_invalid(self):
-        """
-        Test that an invalid album creation form is not processed.
-        """
-        data = {'title': '', 'description': ''}  # Invalid data with empty fields
-        form = AlbumForm(data=data)
-        self.assertFalse(form.is_valid())
-
-class UploadMediaViewTestCase(TestCase):
-    def setUp(self):
-        # Create a test user (if you're using user authentication)
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-
-        # Create a test album
-        self.album = Album.objects.create(
-            title='Test Album',
-            description='This is a test album.',
-            created_by=self.user
-        )
-
-    def test_upload_media_view(self):
-        """
-        Test the upload media view.
-        """
-        response = self.client.get(reverse('media_management_app:upload_media', args=[self.album.id]))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'media_management_app/upload_media.html')
-
-    def test_upload_media_form_valid(self):
-        """
-        Test that a valid media upload form is processed correctly.
-        """
-        data = {'title': 'New Media', 'description': 'This is a new media file.'}
-        form = MediaForm(data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_upload_media_form_invalid(self):
-        """
-        Test that an invalid media upload form is not processed.
-        """
-        data = {'title': '', 'description': ''}  # Invalid data with empty fields
-        form = MediaForm(data=data)
-        self.assertFalse(form.is_valid())
+    def test_list_media(self):
+        # Test listing media items
+        response = self.client.get('/api/media/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

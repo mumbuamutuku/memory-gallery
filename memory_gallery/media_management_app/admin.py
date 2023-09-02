@@ -9,9 +9,9 @@ class AlbumAdmin(admin.ModelAdmin):
 
     Fields to display and filter in the admin list view are specified here.
     """
-    list_display = ('title', 'description', 'created_at')
+    list_display = ('title', 'description', 'created_by' 'created_at')
     list_filter = ('created_at',)
-    search_fields = ('title', 'description')
+    search_fields = ('title', 'created_by__username')
     prepopulated_fields = {'slug': ('title',)}
 
 # Register the Media model with the Django admin site
@@ -22,6 +22,6 @@ class MediaAdmin(admin.ModelAdmin):
 
     Fields to display and filter in the admin list view are specified here.
     """
-    list_display = ('title', 'album', 'uploader', 'upload_date', 'privacy_setting')
+    list_display = ('title', 'album', 'album', 'uploader', 'upload_date', 'privacy_setting')
     list_filter = ('album', 'uploader', 'upload_date', 'privacy_setting')
-    search_fields = ('title', 'description')
+    search_fields = ('title', 'album__title', 'uploader__username')
