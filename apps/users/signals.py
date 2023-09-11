@@ -8,7 +8,7 @@ from .models import CustomUser
 def send_welcome_email(sender, instance, created, **kwargs):
     if created:
         subject = 'Welcome to Memory Gallery!'
-        message = f'Hello {instance.first_name},\n\nWelcome to Memory Gallery! We are excited to have you as a member.'
+        message = f'Hello {instance.username},\n\nWelcome to Memory Gallery! We are excited to have you as a member.'
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [instance.email]
 
