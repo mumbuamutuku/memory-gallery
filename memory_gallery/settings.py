@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'apps.memories',
     'rest_framework',
     'corsheaders',
+    'django_extensions',
 
     ]
 
@@ -60,6 +61,11 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
      'corsheaders.middleware.CorsMiddleware',
 ]
+
+GRAPH_MODELS = {
+   'all-applications': True,
+   'group_models': True,
+}
 
 ROOT_URLCONF = 'memory_gallery.urls'
 
@@ -175,7 +181,6 @@ EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-EMAIL_USE_SSL = False
 
 
 LANGUAGE_CODE = 'en-us'
