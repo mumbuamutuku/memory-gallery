@@ -3,10 +3,15 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
-from .models import UserProfile
+from django.shortcuts import render
+from rest_framework.request import Request
+from .models import CustomUserManager, CustomUser, UserProfile
 from .serializers import CustomUserSerializer, UserProfileSerializer
 
 User = get_user_model()
+
+def my_view(request):
+    return render(request, 'index.html', context)
 
 class RegistrationAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
