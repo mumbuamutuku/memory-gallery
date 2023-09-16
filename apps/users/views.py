@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model, authenticate, login
 from rest_framework import generics, permissions, status
-from rest_framework.decorator import permission_classes
+from rest_framework.decorators import permission_classes
 from rest_framework.authtoken.models import Token
-from rest_framework.Permissions import AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
@@ -13,8 +13,10 @@ from .serializers import CustomUserSerializer, UserProfileSerializer
 
 User = get_user_model()
 
-def my_view(request):
-    return render(request, 'index.html', context)
+
+class WelcomeAPIView(APIView):
+    def my_view(request):
+        return render(request, 'index.html', context)
 
 class RegistrationAPIView(APIView):
     permission_classes = (permissions.AllowAny,)

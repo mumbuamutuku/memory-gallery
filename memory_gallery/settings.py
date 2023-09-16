@@ -57,7 +57,10 @@ ROOT_URLCONF = 'memory_gallery.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ os.path.join(BASE_DIR, 'frontend_section', 'src')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'frontend_section', 'src'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
