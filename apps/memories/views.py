@@ -23,7 +23,7 @@ class MemoryListCreateView(APIView):
     parser_classes = (MultiPartParser,)
 
     def get(self, request):
-        memories = memories.objects.filter(user=request.user)
+        memories = Memory.objects.filter(user=request.user)
         serializer = MemorySerializer(memories, many=True)
         return response(serializr.data, status=status.HTTP_200_OK)
 
