@@ -21,6 +21,7 @@ pyparsing
 python-decouple
 python3-openid
 pytz
+gunicorn
 requests
 requests-oauthlib
 sqlparse
