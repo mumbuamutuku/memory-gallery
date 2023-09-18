@@ -27,3 +27,4 @@ requests-oauthlib
 sqlparse
 typing_extensions
 urllib3
+gunicorn
