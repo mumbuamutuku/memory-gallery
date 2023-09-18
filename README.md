@@ -69,6 +69,9 @@ EMAIL_HOST_PASSWORD='host password'
 
 # Run Migrations:
 ```
+python manage.py makemigrations
+```
+```
 python manage.py migrate
 ```
 # Create a superuser for admin access:
