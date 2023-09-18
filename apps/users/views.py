@@ -28,6 +28,8 @@ class RegistrationAPIView(APIView):
             user.set_password(request.data.get('password'))
             user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # Redirect the user to the login page upon successful registration
+            return redirect('user-login')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @permission_classes([AllowAny])
