@@ -5,6 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.shortcuts import redirect
 from rest_framework.authentication import TokenAuthentication
 from django.shortcuts import render
 from rest_framework.request import Request
@@ -27,7 +28,6 @@ class RegistrationAPIView(APIView):
             user = serializer.save()
             user.set_password(request.data.get('password'))
             user.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
             return redirect('user-login')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
