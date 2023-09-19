@@ -88,7 +88,7 @@ REST_FRAMEWORK = {
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
 
-WSGI_APPLICATION = 'memory-gallery.wsgi.application'
+WSGI_APPLICATION = 'memory_gallery.wsgi.application'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
