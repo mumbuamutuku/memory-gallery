@@ -41,7 +41,7 @@ class UserLoginAPIView(APIView):
 
         if user is not None:
             login(request, user)
-            user_data, created = Token.objects.get_or_create(user=user)
+            user_data, created = user_data.objects.get_or_create(user=user)
             
             user_data = {
                'token': token.key,
