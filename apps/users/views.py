@@ -43,10 +43,10 @@ class UserLoginAPIView(APIView):
             login(request, user)
             token, created = Token.objects.get_or_create(user=user)
             
-             user_data = {
-                'token': token.key,
-                'user_id': user.id,
-                'username': user.username
+            user_data = {
+               'token': token.key,
+               'user_id': user.id,
+               'username': user.username
             }
 
             return Response({'token': token.key}, status=status.HTTP_200_OK)
