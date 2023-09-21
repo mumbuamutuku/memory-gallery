@@ -11,9 +11,9 @@ django-extensions
 djangorestframework
 graphviz
 idna
+mysqlclient
 oauthlib
 Pillow
-psycopg2-binary
 pycparser
 pydotplus
 PyJWT
@@ -21,7 +21,6 @@ pyparsing
 python-decouple
 python3-openid
 pytz
-gunicorn
 requests
 requests-oauthlib
 sqlparse
