@@ -100,15 +100,16 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+# https://docs.djangoproject.com/en/3.1/ref/settings/#database
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'Localhost': config('HOST'),
-        'Port': config('PORT')
+        'NAME': 'new_database',
+        'USER': 'dtgamer',
+        'PASSWORD': 'TSV1860Muchen10qp29wo38ei47ru56ty.',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
