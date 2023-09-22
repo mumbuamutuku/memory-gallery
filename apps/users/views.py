@@ -12,6 +12,8 @@ from django.shortcuts import render
 from rest_framework.request import Request
 from .models import CustomUserManager, CustomUser, UserProfile
 from .serializers import CustomUserSerializer, UserProfileSerializer
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 
@@ -54,34 +56,18 @@ class UserLoginAPIView(APIView):
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
                             
-class UserProfileAPIView(APIView):
+class UserProfileAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
     permission_classes = (IsAuthenticated,)
-    authentication_classes = (TokenAuthentication,)
 
-    def get(self, request):
-        try:
-            user_profile = UserProfile.objects.get(user=request.user)
-            serializer = UserProfileSerializer(user_profile)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except UserProfile.DoesNotExist:
-            return Response({'detail': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    lookup_field = 'user_id'
 
-    def put(self, request):
-        try:
-            user_profile = UserProfile.objects.get(user=request.user)
-            serializer = UserProfileSerializer(user_profile, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except UserProfile.DoesNotExist:
-            return Response({'detail': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    def delete(self, request):
-        try:
-            user_profile = UserProfile.objects.get(user=request.user) 
-            user_profile.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except UserProfile.DoesNotExist:
-            return Response({'detail': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    def get_object(self):
+        # Get the user ID from the URL
+        user_id = self.kwargs.get(self.lookup_field)
+        
+        user_profile = get_object_or_404(UserProfile, user_id=user_id)
+        
+        return user_profile
 
