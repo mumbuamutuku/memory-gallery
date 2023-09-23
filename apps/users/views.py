@@ -15,11 +15,14 @@ from .serializers import CustomUserSerializer, UserProfileSerializer
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from django.shortcuts import get_object_or_404
 
+
 User = get_user_model()
 
-
 class WelcomeAPIView(APIView):
-    def my_view(request):
+    def get(self, request):
+        context = {
+            'message': 'Welcome to the Memory Gallery!',
+        }
         return render(request, 'index.html', context)
 
 class RegistrationAPIView(APIView):
@@ -45,7 +48,7 @@ class UserLoginAPIView(APIView):
         if user is not None:
             login(request, user)
             token, created = Token.objects.get_or_create(user=user)
-            
+
             user_data = {
                'token': token.key,
                'user_id': user.id,
@@ -55,18 +58,23 @@ class UserLoginAPIView(APIView):
             return Response(user_data, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-                            
+
 class UserProfileAPIView(RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = (IsAuthenticated,)
+    # Remove the permission_classes and authentication_classes lines to allow unauthenticated access
+    permission_classes = ()
+    authentication_classes = ()
 
     lookup_field = 'pk'
 
     def get_object(self):
+        # Get the user ID from the URL
         user_id = self.kwargs.get(self.lookup_field)
-        
-        user_profile = get_object_or_404(UserProfile, pk=user_id)
-        
-        return user_profile
 
+        # Debug output
+        print(f"User ID from URL: {user_id}")
+
+        user_profile = get_object_or_404(UserProfile, pk=user_id)
+
+        return user_profile
