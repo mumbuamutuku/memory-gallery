@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.views import LogoutView
-from . import views
+from .views import WelcomeAPIView, RegistrationAPIView, UserLoginAPIView, UserProfileAPIView
 
 urlpatterns = [
     path('view/', WelcomeAPIView.as_view(), name='user-view'),
