@@ -61,13 +61,12 @@ class UserProfileAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = (IsAuthenticated,)
 
-    lookup_field = 'user_id'
+    lookup_field = 'pk'
 
     def get_object(self):
-        # Get the user ID from the URL
         user_id = self.kwargs.get(self.lookup_field)
         
-        user_profile = get_object_or_404(UserProfile, user_id=user_id)
+        user_profile = get_object_or_404(UserProfile, pk=user_id)
         
         return user_profile
 
