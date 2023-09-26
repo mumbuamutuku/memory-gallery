@@ -21,7 +21,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+from rest_framework import serializers
+from .models import UserProfile
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='user.username')
+    email = serializers.ReadOnlyField(source='user.email')
+
     class Meta:
         model = UserProfile
-        fields = ('profile_picture', 'bio')
+        fields = ('user', 'username', 'email', 'profile_picture', 'bio')
+

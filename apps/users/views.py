@@ -62,19 +62,26 @@ class UserLoginAPIView(APIView):
 class UserProfileAPIView(RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    # Remove the permission_classes and authentication_classes lines to allow unauthenticated access
     permission_classes = ()
     authentication_classes = ()
-
     lookup_field = 'pk'
 
     def get_object(self):
-        # Get the user ID from the URL
         user_id = self.kwargs.get(self.lookup_field)
+        user_profile = UserProfile.objects.filter(pk=user_id).select_related('user').first()
 
-        # Debug output
-        print(f"User ID from URL: {user_id}")
-
-        user_profile = get_object_or_404(UserProfile, pk=user_id)
+        if not user_profile:
+            raise NotFound("User profile not found")
 
         return user_profile
+
+    def get(self, request, *args, **kwargs):
+        user_profile = self.get_object()
+        serializer = self.serializer_class(user_profile)
+
+        # Include username and email in the response
+        response_data = serializer.data
+        response_data['username'] = user_profile.username
+        response_data['email'] = user_profile.email
+
+        return Response(response_data)
