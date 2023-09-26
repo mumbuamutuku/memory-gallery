@@ -4,6 +4,7 @@ cffi
 charset-normalizer
 cryptography
 defusedxml
+dj-database-url
 Django
 django-allauth
 django-cors-headers
@@ -11,9 +12,10 @@ django-extensions
 djangorestframework
 graphviz
 idna
+mysqlclient
 oauthlib
+packaging
 Pillow
-psycopg2-binary
 pycparser
 pydotplus
 PyJWT

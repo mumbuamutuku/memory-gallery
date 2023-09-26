@@ -22,6 +22,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return user
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='user.username')
+    email = serializers.ReadOnlyField(source='user.email')
+
     class Meta:
         model = UserProfile
-        fields = ('profile_picture', 'bio')
+        fields = ('user', 'username', 'email', 'profile_picture', 'bio')
+
