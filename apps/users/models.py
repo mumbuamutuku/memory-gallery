@@ -38,7 +38,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         unique_together = ('email', 'username')
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        primary_key=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     bio = models.TextField(max_length=500, null=True, blank=True)
 
