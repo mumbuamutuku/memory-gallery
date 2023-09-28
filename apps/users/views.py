@@ -48,11 +48,9 @@ class RegistrationAPIView(APIView):
                 user.delete()  # Delete the user if profile creation fails
                 return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            # Return user ID, token, username, and email in the response
-            token, created = Token.objects.get_or_create(user=user)
+            # Return user ID, username, and email in the response
             user_data = {
                 'user_id': user.id,
-                'token': token.key,
                 'username': user.username,
                 'email': user.email,
             }
@@ -73,9 +71,10 @@ class UserLoginAPIView(APIView):
             token, created = Token.objects.get_or_create(user=user)
 
             user_data = {
-               'token': token.key,
+               'token': token.key,  # Add the user token
                'user_id': user.id,
-               'username': user.username
+               'username': user.username,
+               'email': user.email,
             }
 
             # Redirect to the edit profile view upon successful login
