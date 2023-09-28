@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from .views import WelcomeAPIView, RegistrationAPIView, UserLoginAPIView, UserProfileAPIView, EditProfileView, CreateProfileView
-
+from django.conf.urls.settings import static
 urlpatterns = [
     path('view/', WelcomeAPIView.as_view(), name='user-view'),
     path('register/', RegistrationAPIView.as_view(), name='user-register'),
@@ -11,4 +12,6 @@ urlpatterns = [
     path('create-profile/', CreateProfileView.as_view(), name='create-profile'),
     path('logout/', LogoutView.as_view(), name='user-logout'),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

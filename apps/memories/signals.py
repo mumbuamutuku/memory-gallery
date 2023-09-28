@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from .models import Memory
 from django.contrib.auth.models import User
 import os
-from django.core.email import send_mail
+from django.core.mail import send_mail
 
 @receiver(post_save, sender=Memory)
 def handle_memory_creation(sender, instance, created, **kwargs):
