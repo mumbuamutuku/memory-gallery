@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from .views import WelcomeAPIView, RegistrationAPIView, UserLoginAPIView, UserProfileAPIView, EditProfileView, CreateProfileView
-from django.conf.urls.settings import static
+from django.conf.urls.static import static
 urlpatterns = [
     path('view/', WelcomeAPIView.as_view(), name='user-view'),
     path('register/', RegistrationAPIView.as_view(), name='user-register'),
