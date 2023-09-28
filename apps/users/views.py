@@ -77,8 +77,8 @@ class UserLoginAPIView(APIView):
                'email': user.email,
             }
 
-            # Redirect to the edit profile view upon successful login
-            return redirect(reverse('edit-profile'))
+            
+            return Response(user_data, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
