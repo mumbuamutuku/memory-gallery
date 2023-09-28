@@ -2,21 +2,16 @@ from django.contrib.auth import get_user_model, authenticate, login
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import permission_classes
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
-from django.shortcuts import redirect
-from rest_framework.authentication import TokenAuthentication
-from django.shortcuts import render
-from rest_framework.request import Request
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from .models import CustomUserManager, CustomUser, UserProfile
 from .serializers import CustomUserSerializer, UserProfileSerializer
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
-
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 
@@ -42,7 +37,7 @@ class RegistrationAPIView(APIView):
             profile_data = {
                 'user': user.pk,  # Use the primary key of the user
                 'profile_picture': None,
-                'bio': '',  # You can set this to the desired initial value
+                'bio': '',
             }
             profile_serializer = UserProfileSerializer(data=profile_data)
             if profile_serializer.is_valid():
@@ -73,7 +68,7 @@ class UserLoginAPIView(APIView):
                'username': user.username
             }
 
-            #return Response(user_data, status=status.HTTP_200_OK)
+            # Redirect to the edit profile view upon successful login
             return redirect(reverse('edit-profile'))
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -81,15 +76,13 @@ class UserLoginAPIView(APIView):
 class UserProfileAPIView(RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    permission_classes = ()
+    permission_classes = (IsAuthenticated,)
     authentication_classes = ()
-    #permission_classes = (IsAuthenticated,)
     lookup_field = 'pk'
 
     def get_object(self):
         user_id = self.kwargs.get(self.lookup_field)
         user_profile = UserProfile.objects.filter(pk=user_id).select_related('user').first()
-        #user_profile = UserProfile.objects.filter(pk=user_id, user=self.request.user).first()
         
         if not user_profile:
             raise NotFound("User profile not found")
@@ -107,10 +100,33 @@ class UserProfileAPIView(RetrieveUpdateDestroyAPIView):
 
         return Response(response_data)
 
-class CreateProfileAPIView(generics.CreateAPIView):
+class CreateProfileView(generics.CreateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
 
     def perform_create(self, serializer):
         # Automatically set the user field to the currently authenticated user
         serializer.save(user=self.request.user)
+
+
+class EditProfileView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        # Retrieve the user's profile
+        user_profile = UserProfile.objects.get(user=request.user)
+        serializer = UserProfileSerializer(user_profile)
+        return Response(serializer.data)
+
+    def put(self, request):
+        # Retrieve the user's profile
+        user_profile = UserProfile.objects.get(user=request.user)
+
+        # Deserialize the updated data
+        serializer = UserProfileSerializer(user_profile, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
