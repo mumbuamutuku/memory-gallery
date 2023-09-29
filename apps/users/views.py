@@ -32,6 +32,7 @@ class RegistrationAPIView(APIView):
         if serializer.is_valid():
             email = serializer.validated_data['email']
             username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
 
             # Check if the email or username already exists
             if CustomUser.objects.filter(email=email).exists():
@@ -40,34 +41,36 @@ class RegistrationAPIView(APIView):
             if CustomUser.objects.filter(username=username).exists():
                 return Response({'detail': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Create the user if both email and username are unique
+            # Create the user (CustomUser)
             user = serializer.save()
-            user.set_password(request.data.get('password'))
+            user.set_password(password)
             user.save()
 
-            # Create the user profile with the user's primary key (pk)
-            profile_data = {
-                'user': user.pk,  # Use the primary key of the user
-                'profile_picture': None,
-                'bio': '',
-            }
-            profile_serializer = UserProfileSerializer(data=profile_data)
-            if profile_serializer.is_valid():
-                profile_serializer.save()
-            else:
+            try:
+                # Create the user profile with the user instance
+                UserProfile.objects.create(user=user)
+            except IntegrityError:
                 # Handle errors in profile creation, if any
                 user.delete()  # Delete the user if profile creation fails
-                return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'detail': 'Failed to create user profile'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Return user ID, username, and email in the response
-            user_data = {
-                'user_id': user.id,
-                'username': user.username,
-                'email': user.email,
-            }
-            return Response(user_data, status=status.HTTP_201_CREATED)
+            # Authenticate the user
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+
+                user_data = {
+                   'user_id': user.id,
+                   'username': user.username,
+                   'email': user.email,
+                }
+
+                return Response(user_data, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': 'Failed to authenticate user'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @permission_classes([AllowAny])
 class UserLoginAPIView(APIView):
