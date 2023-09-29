@@ -76,12 +76,6 @@ class UserLoginAPIView(APIView):
                'username': user.username,
                'email': user.email,
             }
-
-<<<<<<< HEAD
-
-=======
-            
->>>>>>> e948ad0282132ad7633ca4479ada44d027c997e5
             return Response(user_data, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
