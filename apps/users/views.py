@@ -30,6 +30,17 @@ class RegistrationAPIView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
+            email = serializer.validated_data['email']
+            username = serializer.validated_data['username']
+
+            # Check if the email or username already exists
+            if CustomUser.objects.filter(email=email).exists():
+                return Response({'detail': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if CustomUser.objects.filter(username=username).exists():
+                return Response({'detail': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Create the user if both email and username are unique
             user = serializer.save()
             user.set_password(request.data.get('password'))
             user.save()
