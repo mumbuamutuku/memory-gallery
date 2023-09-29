@@ -30,6 +30,17 @@ class RegistrationAPIView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
+            email = serializer.validated_data['email']
+            username = serializer.validated_data['username']
+
+            # Check if the email or username already exists
+            if CustomUser.objects.filter(email=email).exists():
+                return Response({'detail': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if CustomUser.objects.filter(username=username).exists():
+                return Response({'detail': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Create the user if both email and username are unique
             user = serializer.save()
             user.set_password(request.data.get('password'))
             user.save()
@@ -76,8 +87,6 @@ class UserLoginAPIView(APIView):
                'username': user.username,
                'email': user.email,
             }
-
-            
             return Response(user_data, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -107,13 +116,13 @@ class UserProfileAPIView(RetrieveUpdateDestroyAPIView):
 
         return Response(response_data)
 
-class CreateProfileView(generics.CreateAPIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+#class CreateProfileView(generics.CreateAPIView):
+ #   queryset = UserProfile.objects.all()
+  #  serializer_class = UserProfileSerializer
 
-    def perform_create(self, serializer):
+   # def perform_create(self, serializer):
         # Automatically set the user field to the currently authenticated user
-        serializer.save(user=self.request.user)
+    #    serializer.save(user=self.request.user)
 
 
 class EditProfileView(APIView):
