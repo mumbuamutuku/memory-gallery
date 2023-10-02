@@ -12,11 +12,16 @@ class MemorySerializer(serializers.ModelSerializer):
         fields = ('id', 'caption', 'image', 'video', 'date', 'user', 'albums')
 
     def create(self, validated_data):
-        user = self.context.get('request').user if 'request' in self.context else None
-        album_ids = validated_data.pop('albums', None)  # Remove albums from validated data
+        # Get the user from the request context
+        user = self.context['request'].user if 'request' in self.context else None
+
+        # Extract the album IDs from the validated data
+        album_ids = validated_data.pop('albums', None)
+
+        # Create the memory object
         memory = Memory.objects.create(user=user, **validated_data)
 
-        # If album IDs are provided in the request data, associate the memory with the albums
+        # If album IDs are provided, associate the memory with the albums
         if album_ids:
             albums = Album.objects.filter(id__in=album_ids, user=user)
             memory.albums.set(albums)
