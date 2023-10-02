@@ -25,12 +25,21 @@ class MemoryListCreateView(APIView):
     def get(self, request):
         memories = Memory.objects.filter(user=request.user)
         serializer = MemorySerializer(memories, many=True)
-        return response(serializr.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = MemorySerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            # Check if 'album' field exists in request data
+            if 'album' in request.data:
+                album_id = request.data['album']
+                try:
+                    album = Album.objects.get(id=album_id, user=request.user)
+                    serializer.save(user=request.user, album=album)
+                except Album.DoesNotExist:
+                    return Response({'detail': 'Album not found'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -38,3 +47,4 @@ class MemoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Memory.objects.all()
     serializer_class = MemorySerializer
     permission_classes = [permissions.IsAuthenticated]
+

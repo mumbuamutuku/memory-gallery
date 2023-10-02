@@ -9,9 +9,16 @@ class AlbumSerializer(serializers.ModelSerializer):
 class MemorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Memory
-        fields = ('id', 'title', 'caption', 'image', 'video', 'date', 'user', 'album')
+        fields = ('id', 'caption', 'image', 'video', 'date', 'user', 'album')
 
     def create(self, validated_data):
         user = self.context['request'].user
+        album = validated_data.pop('album', None)  # Remove 'album' from validated_data if present
         memory = Memory.objects.create(user=user, **validated_data)
+
+        # If 'album' was provided in the request, associate the memory with the album
+        if album:
+            memory.album = album
+            memory.save()
+
         return memory
