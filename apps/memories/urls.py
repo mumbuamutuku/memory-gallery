@@ -1,8 +1,7 @@
-from django.conf import settings
 from django.urls import path
 from .views import AlbumListCreateView, AlbumDetailView, MemoryListCreateView, MemoryDetailView
+from django.conf import settings
 from django.conf.urls.static import static
-
 urlpatterns = [
     path('albums/', AlbumListCreateView.as_view(), name='album-list-create'),
     path('albums/<int:pk>/', AlbumDetailView.as_view(), name='album-detail'),
@@ -11,3 +10,4 @@ urlpatterns = [
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
