@@ -30,9 +30,10 @@ class MemoryListCreateView(APIView):
     def get(self, request):
         memories = Memory.objects.filter(user=request.user)
         serializer = MemorySerializer(memories, many=True)
-        return Response({'memories': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        # Pass the user as part of the context
         serializer = MemorySerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(user=request.user)
