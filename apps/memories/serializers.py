@@ -14,7 +14,11 @@ class MemorySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Get the user from the request context
         request = self.context.get('request')
-        user = request.user if request else None
+        
+        if request and hasattr(request, 'user'):
+            user = request.user
+        else:
+            user = None
 
         # Extract the album IDs from the validated data
         album_ids = validated_data.pop('albums', None)
