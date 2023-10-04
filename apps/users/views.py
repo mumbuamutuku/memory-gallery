@@ -3,11 +3,13 @@ from rest_framework import generics, permissions, status
 from rest_framework.decorators import permission_classes
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
+from django.db import IntegrityError
+from django.conf import settings
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.urls import reverse
 from .models import CustomUserManager, CustomUser, UserProfile
 from .serializers import CustomUserSerializer, UserProfileSerializer
@@ -17,6 +19,9 @@ from django.shortcuts import get_object_or_404
 User = get_user_model()
 
 class WelcomeAPIView(APIView):
+    """
+    API endpoint that provides a welcome message.
+    """
     def get(self, request):
         context = {
             'message': 'Welcome to the Memory Gallery!',
@@ -24,6 +29,27 @@ class WelcomeAPIView(APIView):
         return render(request, 'index.html', context)
 
 class RegistrationAPIView(APIView):
+    """
+    API endpoint that allows user registration.
+
+    - To register a new user, send a POST request with user data.
+
+    When registering a new user, provide the following data in the request body:
+    - `username` (string): The username for the new user.
+    - `email` (string): The email address for the new user.
+    - `password` (string): The password for the new user.
+
+    Example POST data:
+    ```
+    {
+        "username": "newuser",
+        "email": "newuser@example.com",
+        "password": "secretpassword"
+    }
+    ```
+
+    Returns a JSON response with the user data upon successful registration.
+    """
     permission_classes = (permissions.AllowAny,)
     serializer_class = CustomUserSerializer
 
@@ -72,8 +98,25 @@ class RegistrationAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
 @permission_classes([AllowAny])
 class UserLoginAPIView(APIView):
+    """
+    API endpoint that allows user login.
+
+    - To log in a user, send a POST request with the user's credentials.
+
+    Example POST data:
+    ```
+    {
+        "username": "yourusername",
+        "password": "yourpassword"
+    }
+    ```
+
+    Returns a JSON response with a user token and user data upon successful login.
+    """
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -94,7 +137,17 @@ class UserLoginAPIView(APIView):
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
+
 class UserProfileAPIView(RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint that allows viewing, updating, or deleting user profiles.
+
+    - To view a user profile, send a GET request.
+    - To update a user profile, send a PUT request with updated data.
+    - To delete a user profile, send a DELETE request.
+
+    Returns a JSON response with user profile data upon successful operations.
+    """
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = 'pk'
@@ -119,16 +172,15 @@ class UserProfileAPIView(RetrieveUpdateDestroyAPIView):
 
         return Response(response_data)
 
-#class CreateProfileView(generics.CreateAPIView):
- #   queryset = UserProfile.objects.all()
-  #  serializer_class = UserProfileSerializer
-
-   # def perform_create(self, serializer):
-        # Automatically set the user field to the currently authenticated user
-    #    serializer.save(user=self.request.user)
-
-
 class EditProfileView(APIView):
+    """
+    API endpoint that allows viewing and updating user profiles.
+
+    - To view a user profile, send a GET request.
+    - To update a user profile, send a PUT request with updated data.
+
+    Returns a JSON response with user profile data upon successful operations.
+    """
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
@@ -149,5 +201,4 @@ class EditProfileView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 

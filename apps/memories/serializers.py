@@ -9,11 +9,27 @@ class AlbumSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'description', 'cover_photo', 'date_created', 'user')
 
 class MemorySerializer(serializers.ModelSerializer):
+    """
+    Serializer for Memory model.
+
+    Attributes:
+        create: Creates a new Memory instance.
+    """
+
     class Meta:
         model = Memory
         fields = ('id', 'caption', 'image', 'video', 'date', 'user', 'albums')
 
     def create(self, validated_data: dict) -> Memory:
+        """
+        Create a new Memory instance.
+
+        Args:
+            validated_data (dict): Validated data for Memory creation.
+
+        Returns:
+            Memory: The newly created Memory instance.
+        """
         album_ids = validated_data.pop('albums', None)
 
         user: Optional[User] = self.context.get('request').user if 'request' in self.context else None
