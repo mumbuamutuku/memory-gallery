@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Album, Memory
+from typing import Optional
+from django.contrib.auth.models import User
 
 class AlbumSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,22 +13,16 @@ class MemorySerializer(serializers.ModelSerializer):
         model = Memory
         fields = ('id', 'caption', 'image', 'video', 'date', 'user', 'albums')
 
-    def create(self, validated_data):
-        # Get the user from the request context
-        request = self.context.get('request')
-        
-        if request and hasattr(request, 'user'):
-            user = request.user
-        else:
-            user = None
-
-        # Extract the album IDs from the validated data
+    def create(self, validated_data: dict) -> Memory:
         album_ids = validated_data.pop('albums', None)
 
-        # Create the memory object
-        memory = Memory.objects.create(user=user, **validated_data)
+        user: Optional[User] = self.context.get('request').user if 'request' in self.context else None
 
-        # If album IDs are provided, associate the memory with the albums
+        if 'user' not in validated_data:
+            validated_data['user'] = user
+
+        memory = Memory.objects.create(**validated_data)
+
         if album_ids:
             albums = Album.objects.filter(id__in=album_ids, user=user)
             memory.albums.set(albums)
