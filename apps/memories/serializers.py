@@ -30,18 +30,17 @@ class MemorySerializer(serializers.ModelSerializer):
         Returns:
             Memory: The newly created Memory instance.
         """
-        album_ids = validated_data.pop('albums', None)
-
         user: Optional[User] = self.context.get('request').user if 'request' in self.context else None
 
         if 'user' not in validated_data:
             validated_data['user'] = user
 
+        # Assuming you have an 'album_id' field in the request data to specify the album
+        album_id = validated_data.pop('album_id', None)
+
+        if album_id:
+            album = Album.objects.get(id=album_id, user=user)
+            validated_data['album'] = album
+
         memory = Memory.objects.create(**validated_data)
-
-        if album_ids:
-            albums = Album.objects.filter(id__in=album_ids, user=user)
-            memory.albums.set(albums)
-
         return memory
-
