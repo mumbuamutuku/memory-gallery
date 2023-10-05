@@ -18,7 +18,7 @@ class Memory(models.Model):
     video = models.FileField(upload_to='memories/', null=True, blank=True)
     date = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    albums = models.ManyToManyField(Album, related_name='memories', blank=True)
+    album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name='memories')
 
     def __str__(self):
         return f"Memory {self.id}"
