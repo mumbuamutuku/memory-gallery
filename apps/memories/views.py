@@ -116,7 +116,8 @@ class MemoryListCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 class MemoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update, or delete a memory.
@@ -146,3 +147,9 @@ class MemoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MemorySerializer
     permission_classes = [permissions.IsAuthenticated]
 
+class MemoriesByAlbumView(generics.ListAPIView):
+    serializer_class = MemorySerializer
+
+    def get_queryset(self):
+        album_id = self.kwargs.get('album_id')
+        return Memory.objects.filter(album__id=album_id)
