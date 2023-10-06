@@ -18,7 +18,7 @@ class MemorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Memory
-        fields = ('id', 'caption', 'image', 'video', 'date', 'user', 'albums')
+        fields = ('id', 'caption', 'image', 'video', 'date', 'user', 'album')
 
     def create(self, validated_data: dict) -> Memory:
         """
